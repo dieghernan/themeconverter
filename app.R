@@ -3,6 +3,12 @@ library(bslib)
 library(shinyAce)
 library(rstudiothemes)
 
+link_github <- tags$a(
+  shiny::icon("github"),
+  href = "https://github.com/dieghernan/themeconverter",
+  target = "_blank"
+)
+
 # Helper: read file or pasted text
 read_input <- function(file, text) {
   if (!is.null(file)) {
@@ -322,6 +328,7 @@ ui <- page_navbar(
   ),
   nav_spacer(),
   nav_item(input_dark_mode()),
+  nav_item(link_github),
   navbar_options = navbar_options(
     collapsible = FALSE,
     theme = "auto",
