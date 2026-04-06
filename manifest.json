@@ -1642,16 +1642,16 @@
   },
   "files": {
     "_brand.yml": {
-      "checksum": "59d909e11755310b3237ef9c78ccefa7"
+      "checksum": "9903daa32149344012a3d10e91fbd102"
     },
     "app.R": {
-      "checksum": "cce9913278959a64fbbdc5fc7fc5d9d6"
+      "checksum": "315556959483e7cced2afe6be055b903"
     },
     "LICENSE": {
       "checksum": "23cda60695359c2eac90dc22d36a9d0d"
     },
     "README.md": {
-      "checksum": "b2a1a6dbc1c387b6af7d4a1068a69886"
+      "checksum": "fb57e2e06de5a229c5ec3742dc7898f2"
     }
   },
   "users": null

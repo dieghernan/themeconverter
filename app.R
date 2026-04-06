@@ -42,6 +42,10 @@ ui <- page_navbar(
   nav_panel(
     title = "App",
     titlePanel("Theme Converter Suite"),
+    tags$a(
+      href = "https://dieghernan-themeconverter.share.connect.posit.cloud/",
+      "https://dieghernan-themeconverter.share.connect.posit.cloud/"
+    ),
 
     # Summary pane with app purpose and RStudio theme install instructions
     wellPanel(
@@ -356,7 +360,7 @@ ui <- page_navbar(
     input[type='file'] {
       display: none;
     }
-    a.nav-link.active {display: none;}
+    .navbar-nav a.nav-link.active {display: none;}
     .navbar-brand {font-family: 'Inter Tight'; font-weight: 800;}
   "
   ))
