@@ -2,6 +2,7 @@ library(shiny)
 library(bslib)
 library(shinyAce)
 library(rstudiothemes)
+library(brand.yml)
 
 link_github <- tags$a(
   shiny::icon("github"),
