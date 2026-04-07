@@ -51,106 +51,15 @@ ui <- page_navbar(
     wellPanel(
       h4("About this app"),
       p(
-        "Convert themes between VSCode (.json), tmTheme (.tmTheme), and RStudio (.rstheme) formats."
+        "Convert themes between VSCode (.json) and tmTheme (.tmTheme) formats."
       ),
       p(
-        "Use the three tabs below to provide a source theme by uploading or pasting it, optionally specify a theme name, and then download the converted file."
-      ),
-      h5("Install & use converted RStudio themes"),
-      tags$ul(
-        tags$li(
-          "Install the rstudiothemes package: ",
-          code("install.packages('rstudiothemes')")
-        ),
-        tags$li("Place the .rstheme file in a convenient folder."),
-        tags$li(
-          "In RStudio, go to Tools > Global Options > Appearance > Add... to import .rstheme."
-        ),
-        tags$li(
-          "Or run: ",
-          code("rstudiothemes::apply_theme('path/to/your.rstheme')")
-        )
+        "Use the tabs below to provide a source theme by uploading or pasting it, optionally specify a theme name, and then download the converted file."
       )
     ) |>
       tagAppendAttributes(class = "my-4 mx-2"),
     tabsetPanel(
-      ## --- TAB 1: VSCode / tmTheme → RStudio ------------------------------------
-      tabPanel(
-        "To RStudio (.rstheme)",
-        sidebarLayout(
-          sidebarPanel(
-            width = 5,
-            textInput(
-              "name_rstudio",
-              "Theme name",
-              value = NULL,
-              placeholder = "optional"
-            ),
-            checkboxInput("italics", "Use italics", TRUE),
-
-            tags$hr(),
-            # DRAG & DROP AREA
-            div(
-              id = "drop_rstudio",
-              class = "dropzone",
-              "Drag your VSCode (.json) or tmTheme (.tmTheme) file here"
-            ),
-
-            fileInput(
-              "file_in_rstudio",
-              NULL,
-              accept = c(".json", ".tmTheme")
-            ) |>
-              tagAppendAttributes(class = "input-group input-group-sm"),
-
-            tags$hr(),
-            textAreaInput(
-              "text_in_rstudio",
-              "Or paste the theme code",
-              height = "200px"
-            )
-          ),
-
-          mainPanel(
-            width = 7,
-            h3("Status"),
-            verbatimTextOutput("status_rstudio"),
-            downloadButton(
-              "download_rstudio",
-              "Download .rstheme",
-              class = "btn-success my-4"
-            ),
-
-            fluidRow(
-              column(
-                6,
-                h3("Input"),
-                aceEditor(
-                  "preview_rstudio_before",
-                  mode = "json",
-                  theme = "github",
-                  readOnly = TRUE,
-                  height = "300px"
-                )
-              ),
-              column(
-                6,
-                h3("Output"),
-                aceEditor(
-                  "preview_rstudio_after",
-                  mode = "css",
-                  theme = "github",
-                  readOnly = TRUE,
-                  height = "300px"
-                )
-              )
-            )
-          ) |>
-            tagAppendAttributes(class = "pt-3")
-        )
-      ),
-
-      ## --- TAB 2: tmTheme → VSCode ----------------------------------------------
+      ## --- TAB 1: tmTheme → VSCode ----------------------------------------------
       tabPanel(
         "tmTheme → VSCode (.json)",
         sidebarLayout(
@@ -220,7 +129,7 @@ ui <- page_navbar(
         )
       ),
 
-      ## --- TAB 3: VSCode → tmTheme ----------------------------------------------
+      ## --- TAB 2: VSCode → tmTheme ----------------------------------------------
       tabPanel(
         "VSCode → tmTheme (.tmTheme)",
         sidebarLayout(
@@ -247,13 +156,6 @@ ui <- page_navbar(
               "text_in_tmtheme",
               "Or paste the VSCode JSON",
               height = "200px"
-            ),
-            tags$hr(),
-            textInput(
-              "name_tmtheme",
-              "Theme name",
-              value = NULL,
-              placeholder = "optional"
             )
           ),
 
@@ -324,7 +226,6 @@ ui <- page_navbar(
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      enableDropzone('drop_rstudio', 'file_in_rstudio');
       enableDropzone('drop_vscode', 'file_in_vscode');
       enableDropzone('drop_tmtheme', 'file_in_tmtheme');
     });
@@ -368,76 +269,7 @@ ui <- page_navbar(
 
 # Server ----
 server <- function(input, output, session) {
-  # --- 1. Convert to RStudio -------------------------------------------------
-  converted_rstudio <- reactive({
-    raw <- read_input(input$file_in_rstudio, input$text_in_rstudio)
-    req(raw)
-
-    extension <- detect_mode(raw)
-    ext <- switch(extension, "json" = ".json", "xml" = ".tmTheme")
-
-    tmp_in <- tempfile(fileext = ext)
-    tmp_out <- tempfile(fileext = ".rstheme")
-    writeLines(raw, tmp_in)
-
-    tryCatch(
-      {
-        rstudiothemes::convert_to_rstudio_theme(
-          path = tmp_in,
-          outfile = tmp_out,
-          use_italics = input$italics,
-          name = normalize_theme_name(input$name_rstudio)
-        )
-        list(ok = TRUE, path = tmp_out)
-      },
-      error = function(e) list(ok = FALSE, msg = e$message)
-    )
-  })
-
-  observe({
-    raw <- read_input(input$file_in_rstudio, input$text_in_rstudio)
-    if (is.null(raw)) {
-      return()
-    }
-    updateAceEditor(
-      session,
-      "preview_rstudio_before",
-      value = raw,
-      mode = detect_mode(raw)
-    )
-  })
-
-  observe({
-    conv <- converted_rstudio()
-    if (!conv$ok) {
-      return()
-    }
-    after <- paste(readLines(conv$path, warn = FALSE), collapse = "\n")
-    updateAceEditor(
-      session,
-      "preview_rstudio_after",
-      value = after,
-      mode = "css"
-    )
-  })
-
-  output$status_rstudio <- renderText({
-    raw <- read_input(input$file_in_rstudio, input$text_in_rstudio)
-    if (is.null(raw)) {
-      return("Upload or paste a theme to convert.")
-    }
-    if (!converted_rstudio()$ok) {
-      return(paste0("❌ Error: ", converted_rstudio()$msg))
-    }
-    "✅ Conversion completed."
-  })
-
-  output$download_rstudio <- downloadHandler(
-    filename = function() "new_theme.rstheme",
-    content = function(file) file.copy(converted_rstudio()$path, file)
-  )
-
-  # --- 2. tmTheme → VSCode ---------------------------------------------------
+  # --- 1. tmTheme → VSCode ---------------------------------------------------
   converted_vscode <- reactive({
     raw <- read_input(input$file_in_vscode, input$text_in_vscode)
     req(raw)
@@ -502,7 +334,7 @@ server <- function(input, output, session) {
     content = function(file) file.copy(converted_vscode()$path, file)
   )
 
-  # --- 3. VSCode → tmTheme ---------------------------------------------------
+  # --- 2. VSCode → tmTheme ---------------------------------------------------
   converted_tmtheme <- reactive({
     raw <- read_input(input$file_in_tmtheme, input$text_in_tmtheme)
     req(raw)

@@ -1,7 +1,7 @@
 # Theme Converter App
 
-A small Shiny app for converting editor themes between VSCode, tmTheme, and
-RStudio formats.
+A small Shiny app for converting editor themes between VSCode and tmTheme
+formats.
 
 > [!NOTE]
 >
@@ -11,7 +11,6 @@ RStudio formats.
 
 This app lets you:
 
--   Convert VSCode `.json` or tmTheme `.tmTheme` files into RStudio `.rstheme`
 -   Convert tmTheme `.tmTheme` files into VSCode `.json`
 -   Convert VSCode `.json` files into tmTheme `.tmTheme`
 
@@ -20,13 +19,11 @@ directly.
 
 ## Features
 
--   Three conversion modes:
-    1.  VSCode / tmTheme → RStudio
-    2.  tmTheme → VSCode
-    3.  VSCode → tmTheme
+-   Two conversion modes:
+    1.  tmTheme → VSCode
+    2.  VSCode → tmTheme
 -   Real-time input/output preview using Ace editor widgets
 -   Optional theme name entry for converted output
--   RStudio theme installation instructions included in the UI
 
 ## Requirements
 
@@ -62,13 +59,6 @@ or simply open `app.R` in RStudio and click **Run App**.
 3.  Optionally enter a theme name and select italics for RStudio conversions.
 4.  Review the preview panels.
 5.  Download the converted theme file.
-
-## Notes
-
--   For RStudio themes, the app uses
-    `rstudiothemes::convert_to_rstudio_theme()`.
--   After downloading a `.rstheme` file, import it into RStudio via Tools \>
-    Global Options \> Appearance \> Add...
 
 ## Files
 
